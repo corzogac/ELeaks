@@ -40,7 +40,7 @@ def RunNet (SimNet, OutPath):
     return sim
 
     
-def Baseline(Net, Dir = "OutputRuns/"):
+def Baseline(Net, Dir = "OutputModel/"):
     """This function generates a base line information
     1. Identifies and returns position of nodes with zero demand
     2. Returns the base demand 
@@ -63,6 +63,8 @@ def Baseline(Net, Dir = "OutputRuns/"):
             if Node.base_demand>0:            
                 BD.append(Node.base_demand) 
                 Listnz.append(Node.name) 
+                #print(Node.base_demand)
+                #print(Node.name)
             else:
                 BD.append(0)            
     
@@ -82,7 +84,7 @@ def Baseline(Net, Dir = "OutputRuns/"):
 
 
 
-def EvaluateLeaks(RN=1,Lnz='',Dir='OutputRuns/'):
+def EvaluateLeaks(RN=1,Lnz='',Dir='OutputModel/'):
     """[summary]
 
     Args:
@@ -165,7 +167,7 @@ def EvaluateLeaks(RN=1,Lnz='',Dir='OutputRuns/'):
         R['DM']=DM
         R['LM']=LM
 
-        f=open("/scratch-shared/tmp.gJSE36s506/output/"+'DF_'+str(Run)+'_'+str(i)+'.pkl','wb')
+        f=open("/scratch-shared/NAIADES/Outputs/"+'DF_'+str(RN)+'_'+str(i)+'.pkl','wb')
         pickle.dump(R,f)
         f.close()
     print(f'Finish Time 1= {time.time()-start}')    
@@ -179,7 +181,7 @@ def EvaluateLeaks(RN=1,Lnz='',Dir='OutputRuns/'):
         for j in Sensor_Nodes:
             WLMtemp2 = [] 
             for k in range(len(DM[0])):
-                if DM[i][j][(k+1)*3600] <= Threshold:                
+                if DM[i][j][(k+1)*3600] <= 0.5:                
                     WLMtemp2.append(LM[i].LeakFlow[(k+1)*3600]*3600)              
                 else:                
                     WLMtemp2.append(LM[i].LeakFlow[(k+1)*3600]*3600)
@@ -193,7 +195,7 @@ def EvaluateLeaks(RN=1,Lnz='',Dir='OutputRuns/'):
     R['LPM']=LPM
     R['DM']=DM
     R['LM']=LM
-    R['Meta']={'Leakmin':Leakmin,'Leakmax':Leakmax,'Run':Run,'Run Time':time.time()-start2}
+    R['Meta']={'Leakmin':Leakmin,'Leakmax':Leakmax,'Run':RN,'Run Time':time.time()-start2}
     R['TM_l']=TM_
     R['WLM']=WLM
     return R
