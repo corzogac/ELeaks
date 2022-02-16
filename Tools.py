@@ -201,3 +201,45 @@ def EvaluateLeaks(RN=1,Lnz='',Dir='OutputModel/'):
     R['TM_l']=TM_
     R['WLM']=WLM
     return R
+
+
+
+def Get_Pattern(Net,node):
+    Nt=Net.get_node(node)
+    P=Nt.demand_timeseries_list.pattern_list()
+    for i in P:
+        print(i.name)
+        print(i.multipliers)
+
+
+
+
+def RemoveLastPattern(Net,node='141210Y'):
+    Nt=Net.get_node(node)
+    P=Nt.demand_timeseries_list.pattern_list()
+    P.pop(1)
+    Nt.demand_timeseries_list=P
+
+
+import copy
+def createLeak(Nt,node,LeakFlow):
+    #Net.remove_pattern('New')
+    Net=copy.deepcopy(Nt)
+    LeakFlow=[LeakFlow/1000]*(24*1+1)
+    Net.options.hydraulic.demand_model = "PDD"
+    P=Net.demand_timeseries_list.pattern_list()
+    P.pop(1)
+    Net.add_pattern(name ='New', pattern = LeakFlow) #Add New Patter To the model
+    Net.get_node(node).add_demand(base= 1, pattern_name='New') #Add leakflow
+    Net.options.time.duration = 24*1*3600 #Time of simulation
+    return Net    
+
+def GraphNet(Net):
+         # wntr.graphics.plot_network(self.OpenNet(), title= 'Network', node_attribute='elevation',node_colorbar_label='Elevation (m)')
+         wntr.graphics.plot_interactive_network(
+             Net,
+             title="Network",
+             node_attribute="elevation",
+             filename="Elevation.html",
+             auto_open=False,
+         )

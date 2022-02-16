@@ -1,5 +1,6 @@
 
 #%%
+from matplotlib.pyplot import get
 from Tools import *
 
 
@@ -32,32 +33,6 @@ print(len(Lnz))
 # %%
 EvaluateLeaks(1,Lnz,Dir='OutputModel/')
 
-# %%
-import copy
-def createLeak(Nt,node,LeakFlow):
-    #Net.remove_pattern('New')
-    Net=copy.deepcopy(Nt)
-    LeakFlow=[LeakFlow/1000]*(24*1+1)
-    Net.options.hydraulic.demand_model = "PDD"
-    Net.add_pattern(name ='New', pattern = LeakFlow) #Add New Patter To the model
-    Net.get_node(node).add_demand(base= 1, pattern_name='New') #Add leakflow
-    Net.options.time.duration = 24*1*3600 #Time of simulation
-    return Net    
-
-#%%
-def Get_Pattern(Net,node):
-    Nt=Net.get_node(node)
-    P=Nt.demand_timeseries_list.pattern_list()
-    for i in P:
-        print(i.name)
-        print(i.multipliers)
-
-
-def RemoveLastPattern(Net,node='141210Y'):
-    Nt=Net.get_node(node)
-    P=Nt.demand_timeseries_list.pattern_list()
-    P.pop(1)
-    Nt.demand_timeseries_list=P
 
 
 #%%
@@ -76,24 +51,55 @@ Get_Pattern(Net2,Node)
 S1=RunNet(Net1, "OutputModel/")
 S2=RunNet(Net2, "OutputModel/")
 
+
+
+#%%
+def percCal(x,y):
+  return (x-y)*100/x
+
+def Dif(S1,S2,Node):
+    #comparing results of a node
+    Df1=S1.node['pressure']
+    Df2=S2.node['pressure']
+
+    d=percCal(Df1,Df2)
+    v=d[Node].to_numpy()
+    R=np.sqrt(np.sum(v**2))/len(v)
+    d[Node].plot(kind='density')
+    return R
+
 #print(P)
 #Nt=Net1.get_node(Node)
 #print(Nt)
+#%%
+#Lnz List of non zero nodes
+
+import time
+start_time = time.time()
+
+LeaksNetsList=[]
+for i in Lnz:
+    #Run 1 network all nodes
+    #create Leak at node i
+    Net2=createLeak(Net1,i,15)
+    LeaksNetsList.append(Net2)
 
 
-
+a=time.time() - start_time
+print(f'{a} seconds')
 
 
 #%% 
-def GraphNet(Net):
-         # wntr.graphics.plot_network(self.OpenNet(), title= 'Network', node_attribute='elevation',node_colorbar_label='Elevation (m)')
-         wntr.graphics.plot_interactive_network(
-             Net,
-             title="Network",
-             node_attribute="elevation",
-             filename="Elevation.html",
-             auto_open=False,
-         )
+for i in LeaksNetsList:
+    Get_Pattern(i,'133487X')
+
+#%%
+def Get_Node(Net,node):
+    Nt=Net.node[node]
+    P=Nt.demand_timeseries_list.pattern_list()
+
+
+
 GraphNet(Net1)
 
 

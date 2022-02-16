@@ -1,6 +1,6 @@
 ; Filename: ../Start/network_PDA.inp
 ; WNTR: 0.4.0
-; Created: 2022-02-15 23:10:40
+; Created: 2022-02-16 13:10:22
 [TITLE]
 Benalua
 
@@ -1940,8 +1940,8 @@ LINK       Valve1     valve
 
 [DEMANDS]
 ;ID        Demand     Pattern   
-133487X    0.0        1_Patter_February_2018
-133487X    1000.0     New       
+133492X    0.020147985 1_Patter_February_2018
+133492X    1000.0     New       
 
 [STATUS]
 ;ID        Setting   
