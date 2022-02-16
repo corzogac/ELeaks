@@ -16,23 +16,15 @@ Net1=wntr.network.WaterNetworkModel(File)
 
 #%%
 S=RunNet(Net1, "OutputModel/")
-
 print(S)
 # %%
-
 BD, MB, Lnz=Baseline(Net1,'OutputModel/')
-
 
 # %%
 for n in Lnz:
     junc=Net1.get_node(n)
     print(f'{n} = {junc.base_demand}')
 print(len(Lnz))
-
-
-# %%
-EvaluateLeaks(1,Lnz,Dir='OutputModel/')
-
 
 
 #%%
@@ -47,6 +39,8 @@ Node='133487X'
 Get_Pattern(Net1,Node)
 Net2=createLeak(Net1,Node,15)
 Get_Pattern(Net2,Node)
+#Net3=LeaksNetsLis[0]
+
 #%%
 S1=RunNet(Net1, "OutputModel/")
 S2=RunNet(Net2, "OutputModel/")
@@ -73,25 +67,54 @@ def Dif(S1,S2,Node):
 #print(Nt)
 #%%
 #Lnz List of non zero nodes
-
+import copy
 import time
 start_time = time.time()
 
-LeaksNetsList=[]
-for i in Lnz:
-    #Run 1 network all nodes
-    #create Leak at node i
-    Net2=createLeak(Net1,i,15)
-    LeaksNetsList.append(Net2)
+def LeakNets(Net1,Lnz):
+    LeaksNetsList=[]
+    for i in Lnz:
+        #Run 1 network all nodes
+        #create Leak at node i
+        LeaksNetsList.append(createLeak(Net1,i,15))
+    a=time.time() - start_time
+    print(f'{a} seconds')
+    return LeaksNetsList
+#Leak List
+LL1=LeakNets(Net1,Lnz)
 
 
-a=time.time() - start_time
-print(f'{a} seconds')
+#%%
+# 
+
+
+#%%
+## Adding one leak to all network
+#Net List
+NL=[]
+for Ne in LL1:
+    NL.append(LeakNets(Ne,Lnz))
+
+
+
+#%%
+NetList2Leaks=[]
+for i in LeaksNetsList[1:]:
+    for j in range(len(Lnz)):
+        NetList2Leaks.append(createLeak(i,j,15))
+
+
+a=LeaksNetsList[0]
+Get_Pattern(a,'133491X')
+b=LeaksNetsList[1]
+Get_Pattern(b,'133492X')
+
+
 
 
 #%% 
 for i in LeaksNetsList:
-    Get_Pattern(i,'133487X')
+    Get_Pattern(i,'133490Y')
 
 #%%
 def Get_Node(Net,node):
@@ -135,3 +158,7 @@ def compareNode(Net1,Net2,Node='133487X',Key='pressure'):
     
     return sum(D)  # Create divergence matrix 
             
+
+# %%
+EvaluateLeaks(1,Lnz,Dir='OutputModel/')
+

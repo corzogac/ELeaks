@@ -227,11 +227,25 @@ def createLeak(Nt,node,LeakFlow):
     Net=copy.deepcopy(Nt)
     LeakFlow=[LeakFlow/1000]*(24*1+1)
     Net.options.hydraulic.demand_model = "PDD"
-    P=Net.demand_timeseries_list.pattern_list()
-    P.pop(1)
+    #P=Net.demand_timeseries_list.pattern_list()
+    #P.pop(1)
     Net.add_pattern(name ='New', pattern = LeakFlow) #Add New Patter To the model
     Net.get_node(node).add_demand(base= 1, pattern_name='New') #Add leakflow
     Net.options.time.duration = 24*1*3600 #Time of simulation
+    return Net    
+
+import copy
+def createLeaks(Nt,nodes,LeakFlow):
+    #Net.remove_pattern('New')
+    Net=copy.deepcopy(Nt)
+    LeakFlow=[LeakFlow/1000]*(24*1+1)
+    Net.options.hydraulic.demand_model = "PDD"
+    #P=Net.demand_timeseries_list.pattern_list()
+    #P.pop(1)
+    Net.add_pattern(name ='New', pattern = LeakFlow) #Add New Patter To the model
+    for node in nodes:
+        Net.get_node(node).add_demand(base= 1, pattern_name='New') #Add leakflow
+        Net.options.time.duration = 24*1*3600 #Time of simulation
     return Net    
 
 def GraphNet(Net):
